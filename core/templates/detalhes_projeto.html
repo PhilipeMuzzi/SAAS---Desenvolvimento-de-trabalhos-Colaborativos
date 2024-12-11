@@ -1,10 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div class="container">
+    <h2>{{ projeto.nome }}</h2>
+    <p><strong>Descrição:</strong> {{ projeto.descricao }}</p>
+    <p><strong>Data de Criação:</strong> {{ projeto.data_criacao }}</p>
+    <p><strong>Responsável:</strong> {{ projeto.responsavel.username }}</p>
+    <p><strong>Status:</strong> {{ projeto.get_status_display }}</p>
+    <p><strong>Data de Início:</strong> {{ projeto.data_inicio }}</p>
+    <p><strong>Data de Término:</strong> {{ projeto.data_termino }}</p>
 
-</body>
-</html>
+    <h4>Tarefas:</h4>
+    <ul>
+        {% for tarefa in tarefas %}
+            <li>{{ tarefa.nome }} - {% if tarefa.concluida %} Concluída {% else %} Não Concluída {% endif %}</li>
+        {% empty %}
+            <li>Não há tarefas cadastradas.</li>
+        {% endfor %}
+    </ul>
+
+    <h4>Anotações:</h4>
+    <ul>
+        {% for anotacao in anotacoes %}
+            <li>{{ anotacao.conteudo }} (Criado por: {{ anotacao.criado_por.username }}, {{ anotacao.data_criacao }})</li>
+        {% empty %}
+            <li>Não há anotações cadastradas.</li>
+        {% endfor %}
+    </ul>
+
+    <h4>Ideias:</h4>
+    <ul>
+        {% for ideia in ideias %}
+            <li>{{ ideia.conteudo }} (Sugerido por: {{ ideia.sugerido_por.username }}, {{ ideia.data_criacao }})</li>
+        {% empty %}
+            <li>Não há ideias cadastradas.</li>
+        {% endfor %}
+    </ul>
+
+    {% if projeto.responsavel == user %}
+    <form method="POST" action="{% url 'excluir_projeto' projeto.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Excluir Projeto</button>
+    </form>
+{% endif %}
+
+
+    <a href="{% url 'adicionar_ideia' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Ideia</a>
+    <a href="{% url 'adicionar_nota' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Nota</a>
+    <a href="{% url 'adicionar_tarefa' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Tarefa</a>
+
+    <a href="{% url 'relatorios' projeto_id=projeto.id %}" class="btn btn-primary">Ver Relatórios</a>
+</div>

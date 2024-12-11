@@ -4,15 +4,24 @@
        // olha ai pra nao dar erro no convite
 
 
-        function aceitarConvite(id) {
-            fetch(`/aceitar-convite/${id}/`, { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
-                .then(response => response.json())
-                .then(data => alert(data.mensagem))
-                .then(() => location.reload());
-        }
-        function recusarConvite(id) {
-            fetch(`/recusar-convite/${id}/`, { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
-                .then(response => response.json())
-                .then(data => alert(data.mensagem))
-                .then(() => location.reload());
-        }
+function exibirMensagem(texto) {
+    const mensagemDiv = document.getElementById('mensagem');
+    mensagemDiv.textContent = texto;
+    mensagemDiv.style.display = 'block';
+
+    setTimeout(() => {
+        mensagemDiv.style.display = 'none';
+    }, 3000);
+}
+
+function aceitarConvite(conviteId) {
+    const conviteElemento = document.getElementById(`convite-${conviteId}`);
+    conviteElemento.remove();
+    exibirMensagem('Convite aceito');
+}
+
+function recusarConvite(conviteId) {
+    const conviteElemento = document.getElementById(`convite-${conviteId}`);
+    conviteElemento.remove();
+    exibirMensagem('Convite recusado');
+}

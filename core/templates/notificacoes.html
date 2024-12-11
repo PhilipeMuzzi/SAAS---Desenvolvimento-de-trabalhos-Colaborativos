@@ -1,10 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+<div class="container">
+    <h2>Notificações</h2>
+
+    <ul>
+        {% for convite in convites %}
+            <li>
+                <strong>Convite para o projeto:</strong> {{ convite.projeto.nome }}<br>
+                <strong>Status:</strong> Pendente
+                <!-- AINDA INCOMPLETO.............. -->
+            </li>
+        {% empty %}
+            <li>Você não tem convites pendentes.</li>
+        {% endfor %}
+    </ul>
+</div>

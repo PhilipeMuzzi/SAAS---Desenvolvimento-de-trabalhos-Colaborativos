@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Projeto: {{ projeto.nome }}</h1>
+    <p>{{ projeto.descricao }}</p>
+
+    <h3>Tarefas</h3>
+    <ul>
+        {% for tarefa in tarefas %}
+            <li>{{ tarefa.nome }} - {% if tarefa.concluida %} Concluída {% else %} Pendente {% endif %}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Anotações do projeto:</h3>
+    <ul>
+        {% for anotacao in anotacoes %}
+            <li>{{ anotacao.conteudo }} - Criada em {{ anotacao.data_criacao }}</li>
+        {% endfor %}
+    </ul>
+
+    <h4>Criar Nova Anotação</h4>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="conteudo" rows="4" cols="50"></textarea><br>
+        <button type="submit">Salvar</button>
+    </form>
+{% endblock %}
