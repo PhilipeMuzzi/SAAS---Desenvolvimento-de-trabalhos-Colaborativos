@@ -7,14 +7,37 @@
     <p><strong>Data de Início:</strong> {{ projeto.data_inicio }}</p>
     <p><strong>Data de Término:</strong> {{ projeto.data_termino }}</p>
 
-    <h4>Tarefas:</h4>
-    <ul>
-        {% for tarefa in tarefas %}
-            <li>{{ tarefa.nome }} - {% if tarefa.concluida %} <span class="text-success">Concluída</span> {% else %} <span class="text-danger">Não Concluída</span> {% endif %}</li>
-        {% empty %}
-            <li><em>Não há tarefas cadastradas.</em></li>
-        {% endfor %}
-    </ul>
+<h4>Tarefas:</h4>
+<ul>
+    {% for tarefa in tarefas %}
+        <li>
+            {{ tarefa.nome }} -
+            {% if tarefa.concluida %}
+                <span class="text-success">Concluída</span>
+                <form method="POST" action="{% url 'desmarcar_tarefa_concluida' tarefa.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-sm">Desmarcar</button>
+                </form>
+            {% else %}
+                <span class="text-danger">Não Concluída</span>
+                <form method="POST" action="{% url 'marcar_tarefa_concluida' tarefa.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">Marcar como Concluído</button>
+                </form>
+            {% endif %}
+
+            <!-- excluir tarefa -->
+            <form method="POST" action="{% url 'excluir_tarefa' tarefa.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+            </form>
+        </li>
+    {% empty %}
+        <li><em>Não há tarefas cadastradas.</em></li>
+    {% endfor %}
+</ul>
+
+
 
     <h4>Anotações:</h4>
     <ul>

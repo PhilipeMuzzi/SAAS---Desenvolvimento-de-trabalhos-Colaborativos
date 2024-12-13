@@ -1,5 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth import authenticate, login as auth_login
+from django.db.models import Count, F
+from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -200,19 +202,36 @@ def excluir_projeto(request, projeto_id):
 
 
 #------------------------------------/DadosProjetos/-------------------------------------------------------------
+from django.db.models import Count, Q
 
+@login_required
 def relatorios(request, projeto_id):
-    tarefas = Tarefa.objects.filter(projeto_id=projeto_id)
-    tarefas_concluidas = tarefas.filter(status='concluída').count()
-    tarefas_pendentes = tarefas.filter(status='pendente').count()
+    # Buscar o projeto correspondente
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+
+    # Total de atividades relacionadas ao projeto
+    total_tarefas = Tarefa.objects.filter(projeto=projeto).count()
+    total_ideias = Ideia.objects.filter(projeto=projeto).count()
+    total_anotacoes = Anotacao.objects.filter(projeto=projeto).count()
+
+    # Identificar membros do projeto e suas contribuições
+    membros = projeto.membros.annotate(
+        tarefas_concluidas=Count('tarefas', filter=Q(tarefas__projeto=projeto, tarefas__concluida=True)),
+        tarefas_totais=Count('tarefas', filter=Q(tarefas__projeto=projeto)),
+        ideias_sugeridas=Count('ideia', filter=Q(ideia__projeto=projeto)),
+        anotacoes_criadas=Count('anotacoes', filter=Q(anotacoes__projeto=projeto))
+    ).order_by('-tarefas_totais', '-ideias_sugeridas', '-anotacoes_criadas')
 
     context = {
-        'tarefas_concluidas': tarefas_concluidas,
-        'tarefas_pendentes': tarefas_pendentes,
-        'labels': ['Concluídas', 'Pendentes'],
-        'data': [tarefas_concluidas, tarefas_pendentes],
+        'projeto': projeto,
+        'total_tarefas': total_tarefas,
+        'total_ideias': total_ideias,
+        'total_anotacoes': total_anotacoes,
+        'membros': membros,
     }
-    return render(request, 'DadosProjetos/relatorios.html', context)
+
+    return render(request, 'relatorios.html', context)
+
 
 @login_required
 def anotacoes_projeto(request, projeto_id):
@@ -296,3 +315,33 @@ def recusar_convite(request, convite_id):
 
         messages.info(request, "Convite recusado!")
         return redirect('notificacoes')
+
+
+
+@login_required
+def marcar_tarefa_concluida(request, tarefa_id):
+    tarefa = get_object_or_404(Tarefa, id=tarefa_id)
+    if tarefa.projeto.responsavel != request.user and request.user not in tarefa.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para modificar esta tarefa.")
+    tarefa.concluida = True
+    tarefa.save()
+    return redirect('detalhes_projeto', projeto_id=tarefa.projeto.id)
+
+@login_required
+def desmarcar_tarefa_concluida(request, tarefa_id):
+    tarefa = get_object_or_404(Tarefa, id=tarefa_id)
+    if tarefa.projeto.responsavel != request.user and request.user not in tarefa.projeto.membros.all():
+        return HttpResponseForbidden("Sem permissão para modificar.")
+    tarefa.concluida = False
+    tarefa.save()
+    return redirect('detalhes_projeto', projeto_id=tarefa.projeto.id)
+
+
+@login_required
+def excluir_tarefa(request, tarefa_id):
+    tarefa = get_object_or_404(Tarefa, id=tarefa_id)
+    if tarefa.projeto.responsavel != request.user and request.user not in tarefa.projeto.membros.all():
+        return HttpResponseForbidden("Sem permissão para excluir.")
+    projeto_id = tarefa.projeto.id
+    tarefa.delete()
+    return redirect('detalhes_projeto', projeto_id=projeto_id)

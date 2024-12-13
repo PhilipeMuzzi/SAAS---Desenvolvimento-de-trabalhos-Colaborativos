@@ -20,9 +20,14 @@ urlpatterns = [
     path('notificacoes/', views.notificacoes, name='notificacoes'),
 
     path('relatorios/<int:projeto_id>/', views.relatorios, name='relatorios'),
+
     path('detalhes_projeto/<int:projeto_id>/', views.detalhes_projeto, name='detalhes_projeto'),
     path('adicionar_ideia/<int:projeto_id>/', views.adicionar_ideia, name='adicionar_ideia'),
     path('adicionar_nota/<int:projeto_id>/', views.adicionar_nota, name='adicionar_nota'),
     path('projeto/<int:projeto_id>/anotacoes/', views.anotacoes_projeto, name='anotacoes_projeto'),
     path('adicionar_tarefa/<int:projeto_id>/', views.adicionar_tarefa, name='adicionar_tarefa'),
+
+    path('tarefa/<int:tarefa_id>/concluir/', views.marcar_tarefa_concluida, name='marcar_tarefa_concluida'),
+    path('tarefa/<int:tarefa_id>/excluir/', views.excluir_tarefa, name='excluir_tarefa'),
+    path('tarefa/<int:tarefa_id>/desmarcar/', views.desmarcar_tarefa_concluida, name='desmarcar_tarefa_concluida'),
 ]
