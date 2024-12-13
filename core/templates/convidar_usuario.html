@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<h2>Convidar Usuários para o Projeto: {{ projeto.nome }}</h2>
 
-</body>
-</html>
+<form method="GET" action="{% url 'convidar_usuarios' projeto.id %}">
+    <input type="text" name="buscar" placeholder="Buscar usuários" class="form-control" value="{{ request.GET.buscar }}">
+    <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+</form>
+
+<h4>Usuários Disponíveis para Convite:</h4>
+<ul>
+    {% for usuario in usuarios %}
+        <li>
+            {{ usuario.username }}
+            <form method="POST" action="{% url 'enviar_convite' projeto.id usuario.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm">Convidar</button>
+            </form>
+        </li>
+    {% empty %}
+        <li>Não há usuários disponíveis para convidar.</li>
+    {% endfor %}
+</ul>

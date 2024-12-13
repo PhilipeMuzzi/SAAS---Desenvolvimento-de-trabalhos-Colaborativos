@@ -17,34 +17,32 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-<div class="container">
-    <h2>Projetos Criados</h2>
-    <ul>
-        {% for projeto in projetos %}
-            <li>
-                <a href="{% url 'detalhes_projeto' projeto_id=projeto.id %}">{{ projeto.nome }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
-
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'notificacoes' %}">Ver Notificações</a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
 
-<div class="container">
-    <h2>Projetos Criados</h2>
-    <a href="{% url 'criar_projeto' %}"><button>Criar Novo Projeto</button></a>
+<div class="container mt-4">
+    <h2>Projetos</h2>
 
+    <a href="{% url 'criar_projeto' %}" class="btn btn-primary mb-3">Criar Novo Projeto</a>
+
+    <h3>Projetos Criados ou Participados</h3>
     <ul>
         {% for projeto in projetos %}
             <li>
                 <a href="{% url 'detalhes_projeto' projeto_id=projeto.id %}">{{ projeto.nome }}</a>
             </li>
+        {% empty %}
+            <li>Você não tem projetos criados ou não foi convidado para nenhum projeto ainda.</li>
         {% endfor %}
     </ul>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

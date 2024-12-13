@@ -1,15 +1,13 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth import authenticate, login as auth_login
+from django.urls import reverse
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
+from django.shortcuts import render
 from .forms import RegisterForm, ProjetoForm, AnotacaoForm, IdeiaForm, TarefaForm
-from .models import Projeto, Convite, Tarefa, Anotacao, Ideia
+from .models import Projeto, Convite, Tarefa, Anotacao, Ideia, Notificacao
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-
 
 # ------------------------------------- /registration/ ------------------------------------------
 def user_login(request):
@@ -44,29 +42,81 @@ def register(request):
 
 @login_required
 def index(request):
-    projetos = Projeto.objects.all()
-    return render(request, 'index.html', {'projetos': projetos})
 
+    responsavel = Projeto.objects.filter(responsavel=request.user)
+
+    projetos_participando = Projeto.objects.filter(
+        convite__convidado=request.user, convite__status='aceito'
+    )
+
+    projetos = responsavel | projetos_participando
+
+    return render(request, 'index.html', {'projetos': projetos})
 
 # --------------------------------------------------------------------------------------
 
+@login_required
 def detalhes_projeto(request, projeto_id):
     projeto = get_object_or_404(Projeto, id=projeto_id)
     ideias = Ideia.objects.filter(projeto=projeto)
     tarefas = Tarefa.objects.filter(projeto=projeto)
     anotacoes = Anotacao.objects.filter(projeto=projeto)
 
-    print(f"Projeto: {projeto}")
-    print(f"Ideias: {ideias}")
-    print(f"Tarefas: {tarefas}")
-    print(f"Anotações: {anotacoes}")
+
+    usuarios = User.objects.exclude(id=request.user.id)
+
+
+    convites_pendentes = Convite.objects.filter(projeto=projeto, status='pendente')
+
+    usuarios_no_projeto = [convite.convidado for convite in convites_pendentes if convite.status == 'aceito']
+
+    if 'buscar' in request.GET:
+        termo = request.GET.get('buscar')
+        if termo:
+            usuarios = usuarios.filter(username__icontains=termo)
+
+    if request.method == 'POST':
+        convidado_id = request.POST.get('convidado_id')
+        convidado = get_object_or_404(User, id=convidado_id)
+
+        if not Convite.objects.filter(projeto=projeto, convidado=convidado).exists():
+            convite = Convite.objects.create(
+                projeto=projeto,
+                convidado=convidado,
+                enviado_por=request.user,
+                status='pendente'
+            )
+
+            mensagem = f"Você foi convidado para o projeto '{projeto.nome}'."
+            link = f"/detalhes_projeto/{projeto.id}/"
+            Notificacao.objects.create(
+                usuario=convidado,
+                mensagem=mensagem,
+                link=link
+            )
+
+            messages.success(request, f"Convite enviado para {convidado.username}!")
+        else:
+            messages.warning(request, f"{convidado.username} já foi convidado para este projeto.")
+
+        return redirect('detalhes_projeto', projeto_id=projeto.id)
 
     return render(request, 'detalhes_projeto.html', {
         'projeto': projeto,
         'ideias': ideias,
         'tarefas': tarefas,
-        'anotacoes': anotacoes
+        'anotacoes': anotacoes,
+        'usuarios': usuarios,
+        'convites_pendentes': convites_pendentes,
+        'usuarios_no_projeto': usuarios_no_projeto,
     })
+
+@login_required
+def marcar_como_lida(request, notificacao_id):
+    notificacao = get_object_or_404(Notificacao, id=notificacao_id)
+    notificacao.delete()
+    messages.success(request, "Notificação marcada como lida e removida com sucesso.")
+    return redirect('notificacoes')
 
 @login_required
 def criar_projeto(request):
@@ -132,36 +182,10 @@ def adicionar_ideia(request, projeto_id):
     return render(request, 'adicionar_ideia.html', {'form': form, 'projeto': projeto})
 
 
-def enviar_convite(request, projeto_id, usuario_id):
-    projeto = get_object_or_404(Projeto, id=projeto_id, criado_por=request.user)
-    usuario_convidado = get_object_or_404(User, id=usuario_id)
-
-    if Convite.objects.filter(projeto=projeto, usuario_convidado=usuario_convidado, status='pendente').exists():
-        messages.error(request, "Convite já enviado!")
-        return redirect('detalhes_projeto', projeto_id=projeto.id)
-
-    Convite.objects.create(projeto=projeto, usuario_convidado=usuario_convidado)
-    messages.success(request, f"Convite enviado para {usuario_convidado.username}!")
-    return redirect('detalhes_projeto', projeto_id=projeto.id)
-
+@login_required
 def notificacoes(request):
-    convites = Convite.objects.filter(convidado=request.user, status='pendente')
-    return render(request, 'notificacoes.html', {'convites': convites})
-
-def aceitar_convite(request, convite_id):
-    convite = get_object_or_404(Convite, id=convite_id, usuario_convidado=request.user)
-    convite.status = 'aceito'
-    convite.save()
-    convite.projeto.membros.add(request.user)
-    return JsonResponse({'mensagem': 'Convite aceito com sucesso!'})
-
-
-def recusar_convite(request, convite_id):
-    convite = get_object_or_404(Convite, id=convite_id, usuario_convidado=request.user)
-    convite.status = 'recusado'
-    convite.save()
-    return JsonResponse({'mensagem': 'Convite recusado com sucesso!'})
-
+    notificacoes = Notificacao.objects.filter(usuario=request.user).order_by('-data_criacao')
+    return render(request, 'notificacoes.html', {'notificacoes': notificacoes})
 
 @login_required
 def excluir_projeto(request, projeto_id):
@@ -173,7 +197,6 @@ def excluir_projeto(request, projeto_id):
     else:
 
         return redirect('acesso_negado')
-
 
 
 #------------------------------------/DadosProjetos/-------------------------------------------------------------
@@ -191,9 +214,85 @@ def relatorios(request, projeto_id):
     }
     return render(request, 'DadosProjetos/relatorios.html', context)
 
-
 @login_required
 def anotacoes_projeto(request, projeto_id):
     projeto = get_object_or_404(Projeto, id=projeto_id, usuario=request.user)
     tarefas = Tarefa.objects.filter(projeto=projeto)
     return render(request, 'DadosProjetos/anotacoes.html', {'projeto': projeto, 'tarefas': tarefas})
+
+#---------------------------------------------------------------------------------------
+
+def convidar_usuarios(request, projeto_id):
+    projeto = Projeto.objects.get(id=projeto_id)
+    buscar = request.GET.get('buscar', '')
+    usuarios = User.objects.filter(username__icontains=buscar)
+    return render(request, 'convidar_usuario.html', {
+        'projeto': projeto,
+        'usuarios': usuarios,
+        'buscar': buscar,
+    })
+
+@login_required
+def enviar_convite(request, projeto_id, usuario_id):
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+    usuario = get_object_or_404(User, id=usuario_id)
+    if Convite.objects.filter(projeto=projeto, convidado=usuario).exists():
+        messages.error(request, f"{usuario.username} já foi convidado para este projeto.")
+        return redirect('notificacoes')
+
+    convite = Convite.objects.create(
+        projeto=projeto,
+        convidado=usuario,
+        enviado_por=request.user
+    )
+
+    link_projeto = reverse('detalhes_projeto', args=[projeto.id])
+    Notificacao.objects.create(
+        usuario=usuario,
+        mensagem=f"Você foi convidado para participar do projeto {projeto.nome}.",
+        convite=convite,
+        link=link_projeto
+    )
+
+    messages.success(request, f"Convite enviado com sucesso para {usuario.username}!")
+
+    return redirect('notificacoes')
+
+@login_required
+def aceitar_convite(request, convite_id):
+    convite = get_object_or_404(Convite, id=convite_id)
+    projeto = convite.projeto
+
+    if request.method == "POST":
+        convite.status = 'aceito'
+        convite.save()
+
+
+        projeto.membros.add(convite.convidado)
+        Notificacao.objects.filter(convite=convite).update(lida=True)
+        Notificacao.objects.create(
+            usuario=convite.enviado_por,
+            mensagem=f"{convite.convidado.username} aceitou o convite para o projeto {projeto.nome}.",
+            convite=convite
+        )
+
+        messages.success(request, "Convite aceito com sucesso!")
+        return redirect('notificacoes')
+
+@login_required
+def recusar_convite(request, convite_id):
+    convite = get_object_or_404(Convite, id=convite_id)
+
+    if request.method == "POST":
+        convite.status = 'recusado'
+        convite.save()
+        Notificacao.objects.create(
+            usuario=convite.enviado_por,
+            mensagem=f"{convite.convidado.username} recusou o convite para o projeto {convite.projeto.nome}.",
+            convite=convite
+        )
+
+        Notificacao.objects.filter(convite=convite).delete()
+
+        messages.info(request, "Convite recusado!")
+        return redirect('notificacoes')

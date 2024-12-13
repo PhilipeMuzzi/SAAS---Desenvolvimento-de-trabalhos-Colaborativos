@@ -20,6 +20,7 @@ class Projeto(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDENTE)
     data_inicio = models.DateTimeField(default=timezone.now)
     data_termino = models.DateTimeField(null=True)
+    membros = models.ManyToManyField(User, related_name='projetos', blank=True)
 
     def __str__(self):
         return self.nome
@@ -51,4 +52,21 @@ class Convite(models.Model):
     projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
     convidado = models.ForeignKey(User, on_delete=models.CASCADE, related_name='convites_recebidos', null=True)
     enviado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='convites_enviados', null=True)
-    status = models.CharField(max_length=10, choices=[('pendente', 'Pendente'), ('aceito', 'Aceito'), ('recusado', 'Recusado')], default='pendente')
+    status = models.CharField(
+        max_length=10,
+        choices=[('pendente', 'Pendente'), ('aceito', 'Aceito'), ('recusado', 'Recusado')],
+        default='pendente'
+    )
+class Notificacao(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notificacoes')
+    mensagem = models.CharField(max_length=255)
+    link = models.URLField(max_length=200, blank=True, null=True)
+    data_criacao = models.DateTimeField(default=timezone.now)
+    lida = models.BooleanField(default=False)
+    convite = models.ForeignKey(Convite, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Notificação para {self.usuario.username}: {self.mensagem}"
+
+    class Meta:
+        ordering = ['-data_criacao']

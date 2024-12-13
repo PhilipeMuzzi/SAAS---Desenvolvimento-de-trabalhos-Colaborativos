@@ -1,17 +1,38 @@
 {% extends 'base.html' %}
 
-<div class="container">
-    <h2>Notificações</h2>
+{% block content %}
+    <h2>Minhas Notificações</h2>
 
-    <ul>
-        {% for convite in convites %}
-            <li>
-                <strong>Convite para o projeto:</strong> {{ convite.projeto.nome }}<br>
-                <strong>Status:</strong> Pendente
-                <!-- AINDA INCOMPLETO.............. -->
-            </li>
-        {% empty %}
-            <li>Você não tem convites pendentes.</li>
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
         {% endfor %}
-    </ul>
-</div>
+    </div>
+{% endif %}
+
+<ul>
+    {% for notificacao in notificacoes %}
+        <li>
+            <p>{{ notificacao.mensagem }}</p>
+            <a href="{{ notificacao.link }}">Ver Projeto</a>
+
+            {% if notificacao.convite %}
+
+                <form method="post" action="{% url 'aceitar_convite' notificacao.convite.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
+                </form>
+
+                <form method="post" action="{% url 'recusar_convite' notificacao.convite.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Recusar</button>
+                </form>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Não há notificações.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

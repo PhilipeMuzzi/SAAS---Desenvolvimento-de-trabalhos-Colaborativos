@@ -10,41 +10,55 @@
     <h4>Tarefas:</h4>
     <ul>
         {% for tarefa in tarefas %}
-            <li>{{ tarefa.nome }} - {% if tarefa.concluida %} Concluída {% else %} Não Concluída {% endif %}</li>
+            <li>{{ tarefa.nome }} - {% if tarefa.concluida %} <span class="text-success">Concluída</span> {% else %} <span class="text-danger">Não Concluída</span> {% endif %}</li>
         {% empty %}
-            <li>Não há tarefas cadastradas.</li>
+            <li><em>Não há tarefas cadastradas.</em></li>
         {% endfor %}
     </ul>
 
     <h4>Anotações:</h4>
     <ul>
         {% for anotacao in anotacoes %}
-            <li>{{ anotacao.conteudo }} (Criado por: {{ anotacao.criado_por.username }}, {{ anotacao.data_criacao }})</li>
+            <li>{{ anotacao.conteudo }} <small>(Criado por: {{ anotacao.criado_por.username }}, {{ anotacao.data_criacao }})</small></li>
         {% empty %}
-            <li>Não há anotações cadastradas.</li>
+            <li><em>Não há anotações cadastradas.</em></li>
         {% endfor %}
     </ul>
 
     <h4>Ideias:</h4>
     <ul>
         {% for ideia in ideias %}
-            <li>{{ ideia.conteudo }} (Sugerido por: {{ ideia.sugerido_por.username }}, {{ ideia.data_criacao }})</li>
+            <li>{{ ideia.conteudo }} <small>(Sugerido por: {{ ideia.sugerido_por.username }}, {{ ideia.data_criacao }})</small></li>
         {% empty %}
-            <li>Não há ideias cadastradas.</li>
+            <li><em>Não há ideias cadastradas.</em></li>
         {% endfor %}
     </ul>
 
     {% if projeto.responsavel == user %}
-    <form method="POST" action="{% url 'excluir_projeto' projeto.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Excluir Projeto</button>
-    </form>
-{% endif %}
+        <form method="POST" action="{% url 'excluir_projeto' projeto.id %}" class="mt-3">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Excluir Projeto</button>
+        </form>
+    {% endif %}
 
+    <div class="mt-3">
+        <a href="{% url 'adicionar_ideia' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Ideia</a>
+        <a href="{% url 'adicionar_nota' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Nota</a>
+        <a href="{% url 'adicionar_tarefa' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Tarefa</a>
+        <a href="{% url 'relatorios' projeto_id=projeto.id %}" class="btn btn-primary">Ver Relatórios</a>
+    </div>
 
-    <a href="{% url 'adicionar_ideia' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Ideia</a>
-    <a href="{% url 'adicionar_nota' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Nota</a>
-    <a href="{% url 'adicionar_tarefa' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Tarefa</a>
+    <h4 class="mt-4">Convidar Usuários:</h4>
+    <a href="{% url 'convidar_usuarios' projeto.id %}" class="btn btn-primary">Convidar Usuários</a>
 
-    <a href="{% url 'relatorios' projeto_id=projeto.id %}" class="btn btn-primary">Ver Relatórios</a>
+    <h4 class="mt-4">Convites Pendentes:</h4>
+    <ul>
+        {% for convite in convites %}
+            <li>
+                {{ convite.convidado.username }} - Status: {{ convite.get_status_display }}
+            </li>
+        {% empty %}
+            <li><em>Não há convites pendentes.</em></li>
+        {% endfor %}
+    </ul>
 </div>
