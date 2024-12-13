@@ -30,6 +30,7 @@ class Ideia(models.Model):
     projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
     sugerido_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
+    concluida = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Ideia de {self.sugerido_por.username} no projeto {self.projeto.nome}'
@@ -44,6 +45,7 @@ class Anotacao(models.Model):
     projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name="anotacoes")
     criado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
+    concluida = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Anotação de {self.criado_por.username} no projeto {self.projeto.nome}'

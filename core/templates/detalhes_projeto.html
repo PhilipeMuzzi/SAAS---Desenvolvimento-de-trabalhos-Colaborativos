@@ -1,3 +1,10 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+
+
 <div class="container">
     <h2>{{ projeto.nome }}</h2>
     <p><strong>Descrição:</strong> {{ projeto.descricao }}</p>
@@ -13,13 +20,13 @@
         <li>
             {{ tarefa.nome }} -
             {% if tarefa.concluida %}
-                <span class="text-success">Concluída</span>
+                <span class="text-success">✅ Concluída</span>
                 <form method="POST" action="{% url 'desmarcar_tarefa_concluida' tarefa.id %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-warning btn-sm">Desmarcar</button>
                 </form>
             {% else %}
-                <span class="text-danger">Não Concluída</span>
+                <span class="text-danger">❌ Não Concluída</span>
                 <form method="POST" action="{% url 'marcar_tarefa_concluida' tarefa.id %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success btn-sm">Marcar como Concluído</button>
@@ -39,30 +46,71 @@
 
 
 
-    <h4>Anotações:</h4>
-    <ul>
-        {% for anotacao in anotacoes %}
-            <li>{{ anotacao.conteudo }} <small>(Criado por: {{ anotacao.criado_por.username }}, {{ anotacao.data_criacao }})</small></li>
-        {% empty %}
-            <li><em>Não há anotações cadastradas.</em></li>
-        {% endfor %}
-    </ul>
+
+
+
+
+<h4>Anotações:</h4>
+<ul>
+    {% for anotacao in anotacoes %}
+        <li>
+            {{ anotacao.conteudo }} (Criado por: {{ anotacao.criado_por }}) -
+            {% if anotacao.concluida %}
+                <span class="text-success"> ✅ Concluída</span>
+                <form method="POST" action="{% url 'desmarcar_anotacao_concluida' anotacao.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-sm">Desmarcar</button>
+                </form>
+            {% else %}
+                <span class="text-danger">❌ Não Concluída</span>
+                <form method="POST" action="{% url 'marcar_anotacao_concluida' anotacao.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">Marcar como Concluído</button>
+                </form>
+            {% endif %}
+            <form method="POST" action="{% url 'excluir_anotacao' anotacao.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+            </form>
+        </li>
+    {% empty %}
+        <li><em>Não há anotações cadastradas.</em></li>
+    {% endfor %}
+</ul>
+
 
     <h4>Ideias:</h4>
-    <ul>
-        {% for ideia in ideias %}
-            <li>{{ ideia.conteudo }} <small>(Sugerido por: {{ ideia.sugerido_por.username }}, {{ ideia.data_criacao }})</small></li>
-        {% empty %}
-            <li><em>Não há ideias cadastradas.</em></li>
-        {% endfor %}
-    </ul>
 
-    {% if projeto.responsavel == user %}
-        <form method="POST" action="{% url 'excluir_projeto' projeto.id %}" class="mt-3">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Excluir Projeto</button>
-        </form>
-    {% endif %}
+ <ul>
+    {% for ideia in ideias %}
+        <li>
+            {{ ideia.conteudo }} (Sugerido por: {{ ideia.sugerido_por }}) -
+            {% if ideia.concluida %}
+                <span class="text-success">✅ Concluída</span>
+                <form method="POST" action="{% url 'desmarcar_ideia_concluida' ideia.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-sm">Desmarcar</button>
+                </form>
+            {% else %}
+                <span class="text-danger">❌ Não Concluída</span>
+                <form method="POST" action="{% url 'marcar_ideia_concluida' ideia.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">Marcar como Concluído</button>
+                </form>
+            {% endif %}
+
+            <!-- excluir ideia -->
+            <form method="POST" action="{% url 'excluir_ideia' ideia.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+            </form>
+        </li>
+    {% empty %}
+        <li><em>Não há ideias cadastradas.</em></li>
+    {% endfor %}
+</ul>
+
+
 
     <div class="mt-3">
         <a href="{% url 'adicionar_ideia' projeto_id=projeto.id %}" class="btn btn-secondary">Adicionar Ideia</a>
@@ -74,14 +122,5 @@
     <h4 class="mt-4">Convidar Usuários:</h4>
     <a href="{% url 'convidar_usuarios' projeto.id %}" class="btn btn-primary">Convidar Usuários</a>
 
-    <h4 class="mt-4">Convites Pendentes:</h4>
-    <ul>
-        {% for convite in convites %}
-            <li>
-                {{ convite.convidado.username }} - Status: {{ convite.get_status_display }}
-            </li>
-        {% empty %}
-            <li><em>Não há convites pendentes.</em></li>
-        {% endfor %}
-    </ul>
 </div>
+{% endblock %}

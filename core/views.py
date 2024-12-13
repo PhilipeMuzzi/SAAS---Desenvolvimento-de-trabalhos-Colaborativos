@@ -336,7 +336,6 @@ def desmarcar_tarefa_concluida(request, tarefa_id):
     tarefa.save()
     return redirect('detalhes_projeto', projeto_id=tarefa.projeto.id)
 
-
 @login_required
 def excluir_tarefa(request, tarefa_id):
     tarefa = get_object_or_404(Tarefa, id=tarefa_id)
@@ -344,4 +343,60 @@ def excluir_tarefa(request, tarefa_id):
         return HttpResponseForbidden("Sem permissão para excluir.")
     projeto_id = tarefa.projeto.id
     tarefa.delete()
+    return redirect('detalhes_projeto', projeto_id=projeto_id)
+
+
+@login_required
+def marcar_ideia_concluida(request, ideia_id):
+    ideia = get_object_or_404(Ideia, id=ideia_id)
+    if ideia.projeto.responsavel != request.user and request.user not in ideia.projeto.membros.all():
+        return HttpResponseForbidden("Não tem permissão")
+    ideia.concluida = True
+    ideia.save()
+    return redirect('detalhes_projeto', projeto_id=ideia.projeto.id)
+
+@login_required
+def desmarcar_ideia_concluida(request, ideia_id):
+    ideia = get_object_or_404(Ideia, id=ideia_id)
+    if ideia.projeto.responsavel != request.user and request.user not in ideia.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para essa ação.")
+    ideia.concluida = False
+    ideia.save()
+    return redirect('detalhes_projeto', projeto_id=ideia.projeto.id)
+
+@login_required
+def marcar_anotacao_concluida(request, anotacao_id):
+    anotacao = get_object_or_404(Anotacao, id=anotacao_id)
+    if anotacao.projeto.responsavel != request.user and request.user not in anotacao.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para essa ação.")
+    anotacao.concluida = True
+    anotacao.save()
+    return redirect('detalhes_projeto', projeto_id=anotacao.projeto.id)
+
+@login_required
+def desmarcar_anotacao_concluida(request, anotacao_id):
+    anotacao = get_object_or_404(Anotacao, id=anotacao_id)
+    if anotacao.projeto.responsavel != request.user and request.user not in anotacao.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para essa ação.")
+    anotacao.concluida = False
+    anotacao.save()
+    return redirect('detalhes_projeto', projeto_id=anotacao.projeto.id)
+
+
+@login_required
+def excluir_ideia(request, ideia_id):
+    ideia = get_object_or_404(Ideia, id=ideia_id)
+    if ideia.projeto.responsavel != request.user and request.user not in ideia.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para essa ação.")
+    projeto_id = ideia.projeto.id
+    ideia.delete()
+    return redirect('detalhes_projeto', projeto_id=projeto_id)
+
+@login_required
+def excluir_anotacao(request, anotacao_id):
+    anotacao = get_object_or_404(Anotacao, id=anotacao_id)
+    if anotacao.projeto.responsavel != request.user and request.user not in anotacao.projeto.membros.all():
+        return HttpResponseForbidden("Você não tem permissão para essa ação.")
+    projeto_id = anotacao.projeto.id
+    anotacao.delete()
     return redirect('detalhes_projeto', projeto_id=projeto_id)

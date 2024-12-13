@@ -22,8 +22,20 @@ urlpatterns = [
     path('relatorios/<int:projeto_id>/', views.relatorios, name='relatorios'),
 
     path('detalhes_projeto/<int:projeto_id>/', views.detalhes_projeto, name='detalhes_projeto'),
+
     path('adicionar_ideia/<int:projeto_id>/', views.adicionar_ideia, name='adicionar_ideia'),
     path('adicionar_nota/<int:projeto_id>/', views.adicionar_nota, name='adicionar_nota'),
+
+
+    path('marcar_ideia_concluida/<int:ideia_id>/', views.marcar_ideia_concluida, name='marcar_ideia_concluida'),
+    path('desmarcar_ideia_concluida/<int:ideia_id>/', views.desmarcar_ideia_concluida, name='desmarcar_ideia_concluida'),
+    path('marcar_anotacao_concluida/<int:anotacao_id>/', views.marcar_anotacao_concluida, name='marcar_anotacao_concluida'),
+    path('desmarcar_anotacao_concluida/<int:anotacao_id>/', views.desmarcar_anotacao_concluida, name='desmarcar_anotacao_concluida'),
+
+
+    path('excluir_ideia/<int:ideia_id>/', views.excluir_ideia, name='excluir_ideia'),
+    path('excluir_anotacao/<int:anotacao_id>/', views.excluir_anotacao, name='excluir_anotacao'),
+
     path('projeto/<int:projeto_id>/anotacoes/', views.anotacoes_projeto, name='anotacoes_projeto'),
     path('adicionar_tarefa/<int:projeto_id>/', views.adicionar_tarefa, name='adicionar_tarefa'),
 
