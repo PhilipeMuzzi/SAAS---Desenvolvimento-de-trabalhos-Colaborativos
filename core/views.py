@@ -12,6 +12,11 @@ from .models import Projeto, Convite, Tarefa, Anotacao, Ideia, Notificacao
 from django.contrib.auth.models import User
 
 # ------------------------------------- /registration/ ------------------------------------------
+
+def perfil_usuario(request, user_id):
+    perfil = request.user.perfil
+    return render(request, 'perfil_usuario.html', {'perfil': perfil})
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -64,9 +69,7 @@ def detalhes_projeto(request, projeto_id):
     tarefas = Tarefa.objects.filter(projeto=projeto)
     anotacoes = Anotacao.objects.filter(projeto=projeto)
 
-
     usuarios = User.objects.exclude(id=request.user.id)
-
 
     convites_pendentes = Convite.objects.filter(projeto=projeto, status='pendente')
 
@@ -112,6 +115,7 @@ def detalhes_projeto(request, projeto_id):
         'convites_pendentes': convites_pendentes,
         'usuarios_no_projeto': usuarios_no_projeto,
     })
+
 
 @login_required
 def marcar_como_lida(request, notificacao_id):
@@ -244,12 +248,14 @@ def anotacoes_projeto(request, projeto_id):
 def convidar_usuarios(request, projeto_id):
     projeto = Projeto.objects.get(id=projeto_id)
     buscar = request.GET.get('buscar', '')
-    usuarios = User.objects.filter(username__icontains=buscar)
+    usuarios = User.objects.filter(username__icontains=buscar).exclude(id=request.user.id)
+
     return render(request, 'convidar_usuario.html', {
         'projeto': projeto,
         'usuarios': usuarios,
         'buscar': buscar,
     })
+
 
 @login_required
 def enviar_convite(request, projeto_id, usuario_id):
@@ -315,7 +321,6 @@ def recusar_convite(request, convite_id):
 
         messages.info(request, "Convite recusado!")
         return redirect('notificacoes')
-
 
 
 @login_required
@@ -400,3 +405,17 @@ def excluir_anotacao(request, anotacao_id):
     projeto_id = anotacao.projeto.id
     anotacao.delete()
     return redirect('detalhes_projeto', projeto_id=projeto_id)
+
+
+# para o responsável poder excluir o projeto
+@login_required
+def excluir_projeto(request, projeto_id):
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+
+    if request.user != projeto.responsavel:
+        messages.error(request, "Você não tem permissão para excluir este projeto.")
+        return redirect('index')
+
+    projeto.delete()
+    messages.success(request, "Projeto excluído com sucesso!")
+    return redirect('index')

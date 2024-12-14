@@ -1,14 +1,13 @@
 <h2>Convidar Usuários para o Projeto: {{ projeto.nome }}</h2>
 
 <form method="GET" action="{% url 'convidar_usuarios' projeto.id %}">
-    <input type="text" name="buscar" placeholder="Buscar usuários" class="form-control" value="{{ request.GET.buscar }}">
+    <input type="text" id="searchInput" name="buscar" placeholder="Buscar usuários" class="form-control" value="{{ request.GET.buscar }}" onkeyup="filterUsers()">
     <button type="submit" class="btn btn-primary mt-2">Buscar</button>
 </form>
 
-<h4>Usuários Disponíveis para Convite:</h4>
-<ul>
+<ul id="userList" style="display: none;">
     {% for usuario in usuarios %}
-        <li>
+        <li class="user-item">
             {{ usuario.username }}
             <form method="POST" action="{% url 'enviar_convite' projeto.id usuario.id %}" style="display:inline;">
                 {% csrf_token %}
@@ -19,3 +18,26 @@
         <li>Não há usuários disponíveis para convidar.</li>
     {% endfor %}
 </ul>
+
+<script>
+    function filterUsers() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const userList = document.getElementById('userList');
+        const userItems = userList.getElementsByClassName('user-item');
+
+        if (searchInput.length > 0) {
+            userList.style.display = "block";
+        } else {
+            userList.style.display = "none";
+        }
+
+        for (let i = 0; i < userItems.length; i++) {
+            const username = userItems[i].textContent.toLowerCase();
+            if (username.indexOf(searchInput) > -1) {
+                userItems[i].style.display = "list-item";
+            } else {
+                userItems[i].style.display = "none";
+            }
+        }
+    }
+</script>

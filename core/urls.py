@@ -10,7 +10,7 @@ urlpatterns = [
     path('enviar_convite/<int:projeto_id>/<int:usuario_id>/', views.enviar_convite, name='enviar_convite'),
     path('aceitar_convite/<int:convite_id>/', views.aceitar_convite, name='aceitar_convite'),
     path('recusar_convite/<int:convite_id>/', views.recusar_convite, name='recusar_convite'),
-
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
     path('register/', register, name='register'),
     path('excluir_projeto/<int:projeto_id>/', views.excluir_projeto, name='excluir_projeto'),
     path('criar_projeto/', views.criar_projeto, name='criar_projeto'),
@@ -25,7 +25,7 @@ urlpatterns = [
 
     path('adicionar_ideia/<int:projeto_id>/', views.adicionar_ideia, name='adicionar_ideia'),
     path('adicionar_nota/<int:projeto_id>/', views.adicionar_nota, name='adicionar_nota'),
-
+    path('excluir-projeto/<int:projeto_id>/', views.excluir_projeto, name='excluir_projeto'),
 
     path('marcar_ideia_concluida/<int:ideia_id>/', views.marcar_ideia_concluida, name='marcar_ideia_concluida'),
     path('desmarcar_ideia_concluida/<int:ideia_id>/', views.desmarcar_ideia_concluida, name='desmarcar_ideia_concluida'),

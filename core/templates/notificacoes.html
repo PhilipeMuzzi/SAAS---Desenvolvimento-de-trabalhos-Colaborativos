@@ -1,38 +1,54 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Notificações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-indigo-100 p-6 font-poppins">
 
 {% block content %}
-    <h2>Minhas Notificações</h2>
+    <h2 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Minhas Notificações</h2>
+    {% if messages %}
+        <div class="bg-blue-50 text-blue-800 p-4 rounded-lg shadow-lg mb-8">
+            {% for message in messages %}
+                <p class="text-sm">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-w-3xl mx-auto">
+        <ul class="space-y-6">
+            {% for notificacao in notificacoes %} <br>
+                <li class=" p-6 rounded-lg shadow-xl border border-gray-200 hover:bg-indigo-50 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-lg font-medium text-gray-800">{{ notificacao.mensagem }}</p>
+                        <a href="{{ notificacao.link }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">Ver Projeto ></a>
+                    </div>
 
-{% if messages %}
-    <div class="alert alert-info">
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
+                    {% if notificacao.convite %}
+                        <div class="flex space-x-4">
+                            <form method="post" action="{% url 'aceitar_convite' notificacao.convite.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-green-600 transition-all">Aceitar</button>
+                            </form>
+
+                            <form method="post" action="{% url 'recusar_convite' notificacao.convite.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition-all">Recusar</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="bg-white p-6 rounded-lg shadow-xl text-center text-gray-500">Não há notificações.</li>
+            {% endfor %}
+        </ul>
     </div>
-{% endif %}
-
-<ul>
-    {% for notificacao in notificacoes %}
-        <li>
-            <p>{{ notificacao.mensagem }}</p>
-            <a href="{{ notificacao.link }}">Ver Projeto</a>
-
-            {% if notificacao.convite %}
-
-                <form method="post" action="{% url 'aceitar_convite' notificacao.convite.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
-                </form>
-
-                <form method="post" action="{% url 'recusar_convite' notificacao.convite.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm">Recusar</button>
-                </form>
-            {% endif %}
-        </li>
-    {% empty %}
-        <li>Não há notificações.</li>
-    {% endfor %}
-</ul>
 
 {% endblock %}
+
+</body>
+</html>
