@@ -10,7 +10,7 @@ urlpatterns = [
     path('enviar_convite/<int:projeto_id>/<int:usuario_id>/', views.enviar_convite, name='enviar_convite'),
     path('aceitar_convite/<int:convite_id>/', views.aceitar_convite, name='aceitar_convite'),
     path('recusar_convite/<int:convite_id>/', views.recusar_convite, name='recusar_convite'),
-    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+
     path('register/', register, name='register'),
     path('excluir_projeto/<int:projeto_id>/', views.excluir_projeto, name='excluir_projeto'),
     path('criar_projeto/', views.criar_projeto, name='criar_projeto'),

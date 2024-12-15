@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 
 class Projeto(models.Model):
@@ -74,22 +72,3 @@ class Notificacao(models.Model):
 
     class Meta:
         ordering = ['-data_criacao']
-
-
-class PerfilUsuario(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
-    bio = models.TextField(blank=True, null=True)
-    telefone = models.CharField(max_length=15, blank=True, null=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
-
-    def __str__(self):
-        return f'Perfil de {self.usuario.username}'
-
-@receiver(post_save, sender=User)
-def criar_perfil_usuario(sender, instance, created, **kwargs):
-    if created:
-        PerfilUsuario.objects.create(usuario=instance)
-
-@receiver(post_save, sender=User)
-def salvar_perfil_usuario(sender, instance, **kwargs):
-    instance.perfil.save()
