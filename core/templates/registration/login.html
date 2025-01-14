@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>To List - Login</title>
-  <!-- Linkando o CSS -->
   <link rel="stylesheet" href="{% static 'accounts/css/styles.css' %}">
   <!-- Incluir Font Awesome -->
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -45,6 +44,11 @@
                 <p class="error">{{ error }}</p>
             {% endif %}
             <a href="#">Esqueci minha senha</a>
+
+            <div class="register-section">
+                <p> Não tem uma conta ? <a href="/cadastro/" class="register-link">Cadastra-se aqui</a></p>
+
+            </div>
         </div>
     </div>
 </body>
