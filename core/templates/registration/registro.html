@@ -1,17 +1,54 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/css/registro.css' %}">
+    <style>
+        @font-face {
+            font-family: 'Brusher';
+            src: url('/static/fonts/Brusher.ttf') format('truetype');
+        }
+
+        
+        .title, .subtitle, .login-title {
+            font-family: 'Brusher', sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <h2>Registrar</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Registrar</button>
-    </form>
+    <div class="container">
+        <!-- Logo e slogan -->
+        <div class="logo-section">
+            <h1 class="title">To List</h1>
+            <p class="subtitle">Foco é Disciplina</p>
+            <div class="decorative-lines">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Formulário de Registro -->
+        <div class="register-section">
+            <h2>Registro</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <label for="username">Nome de Usuário</label>
+                <input type="text" name="username" placeholder="Nome de usuário" required>
+
+                <label for="email">E-mail</label>
+                <input type="email" name="email" placeholder="E-mail" required>
+
+                <label for="password">Senha</label>
+                <input type="password" name="password" placeholder="Senha" required>
+
+                <button type="submit">Registrar</button>
+            </form>
+            <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login</a></p>
+        </div>
+    </div>
 </body>
 </html>
