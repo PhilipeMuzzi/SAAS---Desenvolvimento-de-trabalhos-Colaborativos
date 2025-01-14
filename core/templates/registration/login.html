@@ -1,10 +1,37 @@
-{% extends "base.html" %}
 
-{% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-  </form>
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To List - Login</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/styles.css' %}">
+
+</head>
+<body>
+  <div class="container">
+    <!-- Logo e slogan -->
+    <div class="logo-section">
+        <h1>To List</h1>
+        <p>Foco é Disciplina</p>
+    </div>
+
+    <!-- Área de Login -->
+    <div class="login-section">
+        <h2>To List</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <a href="#" style="display:block; text-align:right; font-size:12px; margin-top:10px;">Esqueci minha senha</a>
+    </div>
+</div>
+  
+</body>
+</html>

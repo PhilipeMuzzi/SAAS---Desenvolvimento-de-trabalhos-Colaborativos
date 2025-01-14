@@ -31,6 +31,8 @@ def user_login(request):
             return redirect('user_login')
 
     return render(request, 'registration/login.html')
+
+
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
