@@ -11,10 +11,13 @@ from .forms import RegisterForm, ProjetoForm, AnotacaoForm, IdeiaForm, TarefaFor
 from .models import Projeto, Convite, Tarefa, Anotacao, Ideia, Notificacao
 from django.contrib.auth.models import User
 
+
+
 # ------------------------------------- /registration/ ------------------------------------------
 
-def perfil_usuario(request, user_id):
-    perfil = request.user.perfil
+@login_required
+def perfil_usuario(request):
+    perfil = request.user  # Usando o usuário logado diretamente
     return render(request, 'perfil_usuario.html', {'perfil': perfil})
 
 def user_login(request):
@@ -31,6 +34,9 @@ def user_login(request):
             return redirect('user_login')
 
     return render(request, 'registration/login.html')
+
+
+# ------------------------------------ DASHBOARD E HOME -------------------------------------------
 
 
 def register(request):

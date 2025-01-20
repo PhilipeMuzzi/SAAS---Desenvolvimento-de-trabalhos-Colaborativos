@@ -5,7 +5,11 @@ from .views import register
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),  # Para "Meu Perfil"
+    path('notificacoes/', views.notificacoes, name='notificacoes'), 
     path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('projetos/novo/', views.criar_projeto, name='criar_projeto'),
+
     path('convidar_usuarios/<int:projeto_id>/', views.convidar_usuarios, name='convidar_usuarios'),
     path('enviar_convite/<int:projeto_id>/<int:usuario_id>/', views.enviar_convite, name='enviar_convite'),
     path('aceitar_convite/<int:convite_id>/', views.aceitar_convite, name='aceitar_convite'),

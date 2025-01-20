@@ -12,60 +12,62 @@
 <body class="bg-gradient-to-r from-blue-50 to-indigo-100 p-6 font-poppins text-sm">
 
 {% block content %}
-<div class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="container mx-auto p-6 flex flex-col lg:flex-row justify-center items-center gap-6">
 
-<div class="col-span-2 p-6 rounded-lg shadow-md border border-gray-300 bg-white">
-    <h2 class="text-3xl font-semibold text-gray-800 mb-4">{{ projeto.nome }}</h2>
+    <!-- Bloco de projeto -->
+    <div class="col-span-2 p-6 rounded-lg shadow-md border border-gray-300 bg-white w-full lg:w-2/3">
+        <h2 class="text-3xl font-semibold text-gray-800 mb-4">{{ projeto.nome }}</h2>
 
-    <div class="grid grid-cols-2 gap-4">
-        <p class="col-span-1 text-gray-600">
-            <strong>Descrição:</strong> {{ projeto.descricao }}
-        </p>
-        <p class="col-span-1 text-gray-600">
-            <strong>Status:</strong> {{ projeto.get_status_display }}
-        </p>
-        <p class="col-span-1 text-gray-600">
-            <strong>Data de Criação:</strong> {{ projeto.data_criacao }}
-        </p>
-        <p class="col-span-1 text-gray-600">
-            <strong>Data de Início:</strong> {{ projeto.data_inicio }}
-        </p>
-        <p class="col-span-1 text-gray-600">
-            <strong>Data de Término:</strong> {{ projeto.data_termino }}
-        </p>
-        <p class="col-span-2 text-gray-600 flex items-center">
-            <strong>Responsável:</strong>
-            <span class="ml-2 flex items-center text-gray-800">
-                {{ projeto.responsavel.username }}
-                <i class="fas fa-crown text-yellow-500 ml-2"></i>
-            </span>
-        </p>
+        <div class="grid grid-cols-2 gap-4">
+            <p class="col-span-1 text-gray-600">
+                <strong>Descrição:</strong> {{ projeto.descricao }}
+            </p>
+            <p class="col-span-1 text-gray-600">
+                <strong>Status:</strong> {{ projeto.get_status_display }}
+            </p>
+            <p class="col-span-1 text-gray-600">
+                <strong>Data de Criação:</strong> {{ projeto.data_criacao }}
+            </p>
+            <p class="col-span-1 text-gray-600">
+                <strong>Data de Início:</strong> {{ projeto.data_inicio }}
+            </p>
+            <p class="col-span-1 text-gray-600">
+                <strong>Data de Término:</strong> {{ projeto.data_termino }}
+            </p>
+            <p class="col-span-2 text-gray-600 flex items-center">
+                <strong>Responsável:</strong>
+                <span class="ml-2 flex items-center text-gray-800">
+                    {{ projeto.responsavel.username }}
+                    <i class="fas fa-crown text-yellow-500 ml-2"></i>
+                </span>
+            </p>
+        </div>
+
+        <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-700">Membros:</h3>
+            <ul class="mt-2 space-y-2">
+                {% for membro in projeto.membros.all %}
+                <li class="flex items-center bg-gray-50 p-3 rounded-lg shadow-md">
+                    <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+                    <span class="ml-4 text-gray-800">{{ membro.username }}</span>
+                </li>
+                {% empty %}
+                <li class="text-gray-500">Nenhum membro cadastrado.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'convidar_usuarios' projeto.id %}" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition-colors flex items-center">
+                <i class="fas fa-users mr-2"></i> Convidar Usuários
+            </a>
+        </div>
     </div>
 
-    <div class="mt-6">
-        <h3 class="text-lg font-semibold text-gray-700">Membros:</h3>
-        <ul class="mt-2 space-y-2">
-            {% for membro in projeto.membros.all %}
-            <li class="flex items-center bg-gray-50 p-3 rounded-lg shadow-md">
-                <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
-                <span class="ml-4 text-gray-800">{{ membro.username }}</span>
-            </li>
-            {% empty %}
-            <li class="text-gray-500">Nenhum membro cadastrado.</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="mt-6">
-        <a href="{% url 'convidar_usuarios' projeto.id %}" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition-colors flex items-center">
-            <i class="fas fa-users mr-2"></i> Convidar Usuários
-        </a>
-    </div>
-</div>
-
-
-    <div class="p-6 bg-white rounded-lg shadow-md border border-gray-300">
+    <!-- Bloco de Tarefas, Anotações, Ideias -->
+    <div class="p-6 bg-white rounded-lg shadow-md border border-gray-300 w-full lg:w-1/3">
         <div class="space-y-6">
+            <!-- Tarefas -->
             <div>
                 <h4 class="text-ms font-semibold text-gray-700">Tarefas:</h4>
                 <ul class="space-y-4 mt-2">
@@ -83,7 +85,6 @@
                         <li class="text-gray-500"><em>Não há tarefas cadastradas.</em></li>
                     {% endfor %}
                 </ul>
-
                 <div class="mt-4 flex justify-end">
                     <a href="{% url 'adicionar_tarefa' projeto.id %}" class="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-colors flex items-center">
                         <i class="fas fa-plus mr-2"></i> Tarefa
@@ -91,6 +92,7 @@
                 </div>
             </div>
 
+            <!-- Anotações -->
             <div>
                 <h4 class="text-ms font-semibold text-gray-700">Anotações:</h4>
                 <ul class="space-y-4 mt-2">
@@ -108,7 +110,6 @@
                         <li class="text-gray-500"><em>Não há anotações cadastradas.</em></li>
                     {% endfor %}
                 </ul>
-
                 <div class="mt-4 flex justify-end">
                     <a href="{% url 'adicionar_nota' projeto.id %}" class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-colors flex items-center">
                         <i class="fas fa-plus mr-2"></i> Nota
@@ -116,6 +117,7 @@
                 </div>
             </div>
 
+            <!-- Ideias -->
             <div>
                 <h4 class="text-ms font-semibold text-gray-700">Ideias:</h4>
                 <ul class="space-y-4 mt-2">
@@ -133,7 +135,6 @@
                         <li class="text-gray-500"><em>Não há ideias cadastradas.</em></li>
                     {% endfor %}
                 </ul>
-
                 <div class="mt-4 flex justify-end">
                     <a href="{% url 'adicionar_ideia' projeto.id %}" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition-colors flex items-center">
                         <i class="fas fa-plus mr-2"></i> Ideia
